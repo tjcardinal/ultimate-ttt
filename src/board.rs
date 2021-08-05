@@ -44,7 +44,7 @@ impl SquareIndex {
 
 struct InnerBoard {
     squares: [Option<Mark>; 9],
-    pub winner: Option<Mark>,
+    winner: Option<Mark>,
 }
 
 impl InnerBoard {
@@ -181,11 +181,6 @@ impl Board {
             Row::Second => (3..6),
             Row::Third => (6..9),
         };
-
-        for s in &self.squares {
-            print!("{:?}", s.winner);
-        }
-        println!();
 
         index_range
             .map(|s| format!("[{}]", Mark::option_to_string(&self.squares[s].winner)))
