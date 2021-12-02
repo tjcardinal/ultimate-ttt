@@ -1,6 +1,8 @@
 use crate::square;
 use std::fmt;
 
+const BOARD_SIZE: usize = 9;
+
 #[derive(Clone, Copy, PartialEq)]
 pub enum BoardState {
     Winner(square::Mark),
@@ -13,10 +15,10 @@ pub struct Index(usize);
 
 impl Index {
     pub fn new(i: &usize) -> Result<Self, String> {
-        if *i < 9 {
+        if *i < BOARD_SIZE {
             Ok(Self(*i))
         } else {
-            Err(format!("Index {} is not in range (0-8)", i))
+            Err(format!("Index {} is not in range (0-{})", i, BOARD_SIZE))
         }
     }
 
@@ -27,14 +29,14 @@ impl Index {
 
 #[derive(Clone, Copy)]
 pub struct InnerBoard {
-    squares: [square::Square; 9],
+    squares: [square::Square; BOARD_SIZE],
     state: BoardState,
 }
 
 impl InnerBoard {
     pub fn new() -> Self {
         Self {
-            squares: [square::Square(None); 9],
+            squares: [square::Square(None); BOARD_SIZE],
             state: BoardState::InProgress,
         }
     }
@@ -101,7 +103,7 @@ impl InnerBoard {
     }
 
     fn is_full(&self) -> bool {
-        for s in 0..9 {
+        for s in 0..BOARD_SIZE {
             if None == self.squares[s].0 {
                 return false;
             }
@@ -111,7 +113,7 @@ impl InnerBoard {
 }
 
 pub struct OuterBoard {
-    squares: [InnerBoard; 9],
+    squares: [InnerBoard; BOARD_SIZE],
     state: BoardState,
     required_index: Option<Index>,
 }
@@ -119,7 +121,7 @@ pub struct OuterBoard {
 impl OuterBoard {
     pub fn new() -> Self {
         Self {
-            squares: [InnerBoard::new(); 9],
+            squares: [InnerBoard::new(); BOARD_SIZE],
             state: BoardState::InProgress,
             required_index: None,
         }
@@ -136,10 +138,7 @@ impl OuterBoard {
         inner: &Index,
     ) -> Result<(), String> {
         match self.required_index {
-            Some(i) if i != *outer => Err(format!(
-                "Move must be in board {}",
-                self.required_index.unwrap().get()
-            )),
+            Some(i) if i != *outer => Err(format!("Move must be in board {}", i.get())),
             _ => match self.squares[outer.get()].do_move(mark, inner) {
                 Ok(_) => {
                     self.update_state();
@@ -181,7 +180,7 @@ impl OuterBoard {
     }
 
     fn is_full(&self) -> bool {
-        for s in 0..9 {
+        for s in 0..BOARD_SIZE {
             if BoardState::InProgress == self.squares[s].get_state() {
                 return false;
             }
@@ -193,21 +192,19 @@ impl OuterBoard {
 impl fmt::Display for OuterBoard {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         for r in vec![(0..3), (3..6), (6..9)] {
-            let s = r.map(|i| self.squares[i].rows_as_strings()).collect::<Vec<_>>();
+            let s = r
+                .map(|i| self.squares[i].rows_as_strings())
+                .collect::<Vec<_>>();
 
             let first = &s[0];
             let second = &s[1];
             let third = &s[2];
 
-            for (a, (b, c)) in first
-                .into_iter()
-                .zip(second.into_iter().zip(third.into_iter()))
-            {
+            for (a, (b, c)) in first.iter().zip(second.iter().zip(third.iter())) {
                 writeln!(f, "{} | {} | {}", a, b, c)?;
             }
             writeln!(f, "---------------------------------")?;
         }
-
         Ok(())
     }
 }
