@@ -1,6 +1,6 @@
 use std::fmt;
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Mark {
     X,
     O,
@@ -25,7 +25,7 @@ impl fmt::Display for Mark {
     }
 }
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Square(pub Option<Mark>);
 
 impl Square {
@@ -44,5 +44,68 @@ impl fmt::Display for Square {
             None => " ".to_string(),
         };
         write!(f, "{}", symbol)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn flip_x_and_o() {
+        assert_eq!(Mark::X.flip(), Mark::O);
+        assert_eq!(Mark::O.flip(), Mark::X);
+    }
+
+    #[test]
+    fn match_three() {
+        let x = Square(Some(Mark::X));
+        let o = Square(Some(Mark::O));
+
+        assert_eq!(Square::check_match(&x, &x, &x), Some(Mark::X));
+        assert_eq!(Square::check_match(&o, &o, &o), Some(Mark::O));
+    }
+
+    #[test]
+    fn mismatch_three() {
+        let x = Square(Some(Mark::X));
+        let o = Square(Some(Mark::O));
+        let n = Square(None);
+
+        assert_eq!(Square::check_match(&x, &x, &o), None);
+        assert_eq!(Square::check_match(&x, &x, &n), None);
+
+        assert_eq!(Square::check_match(&x, &o, &x), None);
+        assert_eq!(Square::check_match(&x, &o, &o), None);
+        assert_eq!(Square::check_match(&x, &o, &n), None);
+
+        assert_eq!(Square::check_match(&x, &n, &x), None);
+        assert_eq!(Square::check_match(&x, &n, &o), None);
+        assert_eq!(Square::check_match(&x, &n, &n), None);
+
+
+        assert_eq!(Square::check_match(&o, &x, &x), None);
+        assert_eq!(Square::check_match(&o, &x, &o), None);
+        assert_eq!(Square::check_match(&o, &x, &n), None);
+
+        assert_eq!(Square::check_match(&o, &o, &x), None);
+        assert_eq!(Square::check_match(&o, &o, &n), None);
+
+        assert_eq!(Square::check_match(&o, &n, &x), None);
+        assert_eq!(Square::check_match(&o, &n, &o), None);
+        assert_eq!(Square::check_match(&o, &n, &n), None);
+
+
+        assert_eq!(Square::check_match(&n, &x, &x), None);
+        assert_eq!(Square::check_match(&n, &x, &o), None);
+        assert_eq!(Square::check_match(&n, &x, &n), None);
+
+        assert_eq!(Square::check_match(&n, &o, &x), None);
+        assert_eq!(Square::check_match(&n, &o, &o), None);
+        assert_eq!(Square::check_match(&n, &o, &n), None);
+
+        assert_eq!(Square::check_match(&n, &n, &x), None);
+        assert_eq!(Square::check_match(&n, &n, &o), None);
+        assert_eq!(Square::check_match(&n, &n, &n), None);
     }
 }
