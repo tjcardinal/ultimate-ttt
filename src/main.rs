@@ -19,7 +19,7 @@ fn main() {
             .map(str::parse::<usize>)
             .map(|x| x.map(|y| board::Index::new(&y)));
         if let (Some(Ok(Ok(outer))), Some(Ok(Ok(inner)))) = (indices.next(), indices.next()) {
-            if let Err(e) = board.do_move(&active_player, &outer, &inner) {
+            if let Err(e) = board.try_move(&active_player, &outer, &inner) {
                 println!("Invalid move: {}", e);
             } else {
                 active_player = active_player.flip();

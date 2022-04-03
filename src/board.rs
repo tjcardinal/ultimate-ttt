@@ -10,7 +10,7 @@ pub enum BoardState {
     InProgress,
 }
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Index(usize);
 
 impl Index {
@@ -18,7 +18,7 @@ impl Index {
         if *i < BOARD_SIZE {
             Ok(Self(*i))
         } else {
-            Err(format!("Index {} is not in range (0-{})", i, BOARD_SIZE))
+            Err(format!("Index {} is not in range (0-{})", i, BOARD_SIZE - 1))
         }
     }
 
@@ -45,7 +45,7 @@ impl InnerBoard {
         self.state
     }
 
-    pub fn do_move(&mut self, mark: &square::Mark, index: &Index) -> Result<(), String> {
+    pub fn try_move(&mut self, mark: &square::Mark, index: &Index) -> Result<(), String> {
         match self.squares[index.get()].0 {
             Some(_) => Err(format!("Square {} is not empty", index.get())),
             None => {
@@ -131,7 +131,7 @@ impl OuterBoard {
         self.state
     }
 
-    pub fn do_move(
+    pub fn try_move(
         &mut self,
         mark: &square::Mark,
         outer: &Index,
@@ -139,7 +139,7 @@ impl OuterBoard {
     ) -> Result<(), String> {
         match self.required_index {
             Some(i) if i != *outer => Err(format!("Move must be in board {}", i.get())),
-            _ => match self.squares[outer.get()].do_move(mark, inner) {
+            _ => match self.squares[outer.get()].try_move(mark, inner) {
                 Ok(_) => {
                     self.update_state();
                     self.required_index = match self.squares[inner.get()].get_state() {
@@ -206,5 +206,28 @@ impl fmt::Display for OuterBoard {
             writeln!(f, "---------------------------------")?;
         }
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn valid_index_0_to_8() {
+        assert_eq!(Index::new(&0), Ok(Index(0)));
+        assert_eq!(Index::new(&1), Ok(Index(1)));
+        assert_eq!(Index::new(&2), Ok(Index(2)));
+        assert_eq!(Index::new(&3), Ok(Index(3)));
+        assert_eq!(Index::new(&4), Ok(Index(4)));
+        assert_eq!(Index::new(&5), Ok(Index(5)));
+        assert_eq!(Index::new(&6), Ok(Index(6)));
+        assert_eq!(Index::new(&7), Ok(Index(7)));
+        assert_eq!(Index::new(&8), Ok(Index(8)));
+    }
+
+    #[test]
+    fn invalid_index_9() {
+        assert_eq!(Index::new(&9), Err("Index 9 is not in range (0-8)".to_string()));
     }
 }
