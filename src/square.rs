@@ -83,7 +83,6 @@ mod tests {
         assert_eq!(Square::check_match(&x, &n, &o), None);
         assert_eq!(Square::check_match(&x, &n, &n), None);
 
-
         assert_eq!(Square::check_match(&o, &x, &x), None);
         assert_eq!(Square::check_match(&o, &x, &o), None);
         assert_eq!(Square::check_match(&o, &x, &n), None);
@@ -94,7 +93,6 @@ mod tests {
         assert_eq!(Square::check_match(&o, &n, &x), None);
         assert_eq!(Square::check_match(&o, &n, &o), None);
         assert_eq!(Square::check_match(&o, &n, &n), None);
-
 
         assert_eq!(Square::check_match(&n, &x, &x), None);
         assert_eq!(Square::check_match(&n, &x, &o), None);

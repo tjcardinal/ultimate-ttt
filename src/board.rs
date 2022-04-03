@@ -18,7 +18,11 @@ impl Index {
         if *i < BOARD_SIZE {
             Ok(Self(*i))
         } else {
-            Err(format!("Index {} is not in range (0-{})", i, BOARD_SIZE - 1))
+            Err(format!(
+                "Index {} is not in range (0-{})",
+                i,
+                BOARD_SIZE - 1
+            ))
         }
     }
 
@@ -228,6 +232,9 @@ mod tests {
 
     #[test]
     fn invalid_index_9() {
-        assert_eq!(Index::new(&9), Err("Index 9 is not in range (0-8)".to_string()));
+        assert_eq!(
+            Index::new(&9),
+            Err("Index 9 is not in range (0-8)".to_string())
+        );
     }
 }
